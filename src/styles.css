@@ -1,0 +1,38 @@
+
+@import "tailwindcss";
+@custom-variant dark (&:is(.dark *));
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+*::-webkit-scrollbar {
+  width: 5px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #151515;
+  /* your main bg */
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  /* subtle contrast */
+  border-radius: 999px;
+  border: 0px solid #1f1f1f;
+  /* creates padding effect */
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: #4a3a3a;
+}
