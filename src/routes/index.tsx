@@ -4,7 +4,7 @@ import { useGSAP } from '@gsap/react'
 import { gsap } from 'gsap'
 import { CustomEase } from 'gsap/CustomEase'
 import { useRef } from 'react'
-import { HomeUI } from '#/components/Home.tsx';
+import { HomeUI } from '#/components/home';
 
 export const Route = createFileRoute('/')({ component: Home })
 gsap.registerPlugin(useGSAP, CustomEase)
