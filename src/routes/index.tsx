@@ -1,10 +1,8 @@
 import { useGSAP } from "@gsap/react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { gsap } from "gsap";
 import { CustomEase } from "gsap/CustomEase";
 import { useRef } from "react";
-import { HomeUI } from "#/components/Home.tsx";
-
 export const Route = createFileRoute("/")({ component: Home });
 gsap.registerPlugin(useGSAP, CustomEase);
 
@@ -27,6 +25,7 @@ const loaderPanelEase = CustomEase.create(
 );
 
 function Home() {
+	const router = useNavigate();
 	const boxRef = useRef<HTMLDivElement>(null);
 	const loaderTxtRef = useRef<HTMLDivElement>(null);
 	const exitLoaderRef = useRef<HTMLDivElement>(null);
@@ -137,6 +136,9 @@ function Home() {
 					opacity: 1,
 					duration: 0.5,
 					ease: "power2.out",
+					onComplete: () => {
+						router({ to: "/home" });
+					},
 				},
 				"=-0.5",
 			);
@@ -179,12 +181,6 @@ function Home() {
 				ref={exitLoaderRef}
 				className="absolute inset-0 w-full h-full z-50 transform -translate-y-full bg-slate-200"
 			/>
-			<div
-				ref={homeRef}
-				className="absolute inset-0 w-full h-full opacity-0 z-10"
-			>
-				<HomeUI />
-			</div>
 		</div>
 	);
 }

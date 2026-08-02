@@ -1,115 +1,125 @@
 import { useGSAP } from "@gsap/react";
-import { Link } from "@tanstack/react-router";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useRef, useState } from "react";
-import { galleryData } from "#/lib/gallery-data.ts";
+import gsap from "gsap";
+import ScrollToPlugin from "gsap/ScrollToPlugin";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { type MuseumSection, sections } from "#/lib/gallery-data.ts";
+import { ExploreModal } from "./explore-m";
+import { SectionSlide } from "./selection";
 
-gsap.registerPlugin(ScrollTrigger, useGSAP);
+gsap.registerPlugin(useGSAP, ScrollToPlugin);
 
 export function Gallery() {
-	const imgsRef = useRef<HTMLDivElement>(null);
-	const [activeIndex, setActiveIndex] = useState(0);
+	const [imgIndex, setImgIndex] = useState(0);
+	const [selectedSection, setSelectedSection] = useState<MuseumSection | null>(
+		null,
+	);
+	const thumbnailsListRef = useRef<HTMLDivElement>(null);
+	const thumbnailRef = useRef<HTMLButtonElement[]>([]);
+	const imgRef = useRef<HTMLImageElement>(null);
+	const titleRef = useRef<HTMLDivElement>(null);
 
-	const activeStory = galleryData[activeIndex];
-	useGSAP(() => {
-		const imgs = imgsRef.current?.querySelectorAll(".img-box");
-		if (!imgs) return;
-		let lastIndex = -1;
-		const updateActive = () => {
-			const viewportCenter = window.innerHeight / 2;
-			let newIndex = 0;
-			let minDistance = Infinity;
-			imgs.forEach((img, index) => {
-				const rect = img.getBoundingClientRect();
-				const center = rect.top + rect.height / 2;
-				const distance = Math.abs(center - viewportCenter);
-				if (distance < minDistance) {
-					minDistance = distance;
-					newIndex = index;
-				}
-			});
+	const scrollToThumbnail = useCallback((index: number) => {
+		const thu = thumbnailRef.current[index];
+		if (!thu || !thumbnailsListRef.current) return;
+		const offsetY =
+			(thumbnailsListRef.current.clientHeight - thu.clientHeight) / 2;
+		gsap.to(thumbnailsListRef.current, {
+			scrollTo: { y: thu, offsetY },
+			duration: 0.7,
+			ease: "power1.out",
+		});
+		gsap.fromTo(
+			imgRef.current,
+			{
+				scale: 0.95,
+				opacity: 0.5,
+			},
+			{
+				scale: 1,
+				opacity: 1,
+				duration: 0.7,
+				ease: "power1.out",
+			},
+		);
+		gsap.fromTo(
+			titleRef.current,
+			{
+				y: 20,
+				opacity: 0,
+			},
+			{
+				y: 0,
+				opacity: 1,
+				duration: 0.7,
+				ease: "power1.out",
+			},
+		);
+	}, []);
 
-			if (newIndex !== lastIndex) {
-				lastIndex = newIndex;
-				setActiveIndex(newIndex);
-				infoAnimation();
-				gsap.to(imgs, {
-					opacity: 0.5,
-					scale: 0.95,
-					duration: 0.7,
-					overwrite: "auto",
+	useEffect(() => {
+		const keyUpAndDownHandler = (e: KeyboardEvent) => {
+			if (e.key === "ArrowUp") {
+				setImgIndex((prev) => {
+					const next = Math.max(prev - 1, 0);
+					scrollToThumbnail(next);
+					return next;
 				});
-				gsap.to(imgs[newIndex], {
-					opacity: 1,
-					scale: 1,
-					duration: 0.7,
-					overwrite: "auto",
+			} else if (e.key === "ArrowDown") {
+				setImgIndex((prev) => {
+					const next = (prev + 1) % sections.length;
+					scrollToThumbnail(next);
+					return next;
 				});
 			}
 		};
-
-		updateActive();
-
-		const st = ScrollTrigger.create({
-			trigger: imgsRef.current,
-			start: "top top",
-			end: "bottom bottom",
-			onUpdate: updateActive,
-		});
-
-		const onResize = () => ScrollTrigger.refresh();
-		window.addEventListener("resize", onResize);
-
+		window.addEventListener("keydown", keyUpAndDownHandler);
 		return () => {
-			window.removeEventListener("resize", onResize);
-			st.kill();
+			window.removeEventListener("keydown", keyUpAndDownHandler);
 		};
-	});
+	}, [scrollToThumbnail]);
 
-	const infoAnimation = () => {
-		// Animate the info panel in/out
-		gsap.fromTo(
-			".info-panel",
-			{ opacity: 0, y: 20 },
-			{ opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
-		);
+	const handleExplore = (section: MuseumSection) => {
+		setSelectedSection(section);
 	};
 
 	return (
-		<div className="w-full min-h-screen bg-black font-satoshi relative">
-			<header className="fixed inset-x-0 top-0 z-50 flex items-center justify-between bg-black/80 px-6 py-4 backdrop-blur-md md:px-10">
-				<Link
-					to="/"
-					className="font-boska text-2xl font-bold italic tracking-tight text-white transition-opacity hover:opacity-80"
-				>
-					Dekho Bharat
-				</Link>
-			</header>
-			<div className="flex items-start w-full justify-center gap-14">
-				{/* Left panel — shows the active story's data */}
-				<div className="info-panel sticky top-0 flex flex-col items-start justify-center h-screen w-[20%]">
-					<div className="text-2xl font-bold text-white">
-						{activeStory.title}
-					</div>
-					<div className="mt-1 text-xs text-gray-400">
-						{activeStory.location}
-					</div>
-					<div className="mt-4 text-base text-white/80">{activeStory.dec}</div>
-				</div>
-
-				<div className="w-[40%] space-y-5 py-[12%]" ref={imgsRef}>
-					{galleryData.map((story) => (
-						<div key={story.title} className="img-box opacity-50">
-							<img
-								src={story.url}
-								alt={story.title}
-								className="w-full h-full object-cover aspect-video"
-							/>
-						</div>
-					))}
-				</div>
+		<div className="grid grid-cols-[1fr_300px]">
+			<div className="relative max-h-svh overflow-hidden bg-black">
+				<SectionSlide
+					section={sections[imgIndex]}
+					active={true}
+					onExplore={handleExplore}
+				/>
 			</div>
+			<div
+				ref={thumbnailsListRef}
+				className="overflow-y-auto max-h-svh p-5 space-y-5 bg-black"
+			>
+				{sections.map((img, index) => (
+					<button
+						type="button"
+						key={img.id}
+						ref={(el) => {
+							thumbnailRef.current[index] = el as HTMLButtonElement;
+						}}
+						onClick={() => setImgIndex(index)}
+						aria-label={`View ${img.title}`}
+						className={`img-container w-full h-37.5 cursor-pointer transform transition-transform duration-300 ease-out ${imgIndex === index ? "scale-105 border-2 border-slate-50" : "scale-95"}`}
+					>
+						<img
+							src={img.imageUrl}
+							alt={img.title}
+							className="w-full block h-full object-cover"
+						/>
+					</button>
+				))}
+			</div>
+			{selectedSection && (
+				<ExploreModal
+					section={selectedSection}
+					onClose={() => setSelectedSection(null)}
+				/>
+			)}
 		</div>
 	);
 }

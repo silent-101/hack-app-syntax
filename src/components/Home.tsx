@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
 import { useRef } from "react";
+import { AnimatedTitle } from "./animated-title";
 
 const NAV_LINKS = [
 	{ to: "/explore", label: "Museum" },
@@ -82,10 +83,14 @@ export function HomeUI() {
 					style={{ color: PARCHMENT }}
 				>
 					<span className="block overflow-hidden">
-						<span className="inline-block">Discover</span>
+						<span className="inline-block">
+							<AnimatedTitle text="Discover the" delay={0.3} />
+						</span>
 					</span>
 					<span className="block overflow-hidden">
-						<span className="inline-block">incredible India</span>
+						<span className="inline-block">
+							<AnimatedTitle text="incredible India" delay={0.6} />
+						</span>
 					</span>
 				</h1>
 

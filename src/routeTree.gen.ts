@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as GalleryRouteImport } from './routes/gallery'
+import { Route as HomeRouteImport } from './routes/home'
 import { Route as TestRouteImport } from './routes/test'
 import { Route as ApiAiRouteImport } from './routes/api.ai'
 import { Route as ExploreIndexRouteImport } from './routes/explore/index'
@@ -30,6 +31,11 @@ const ChatRoute = ChatRouteImport.update({
 const GalleryRoute = GalleryRouteImport.update({
   id: '/gallery',
   path: '/gallery',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeRoute = HomeRouteImport.update({
+  id: '/home',
+  path: '/home',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TestRoute = TestRouteImport.update({
@@ -57,6 +63,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/chat': typeof ChatRoute
   '/gallery': typeof GalleryRoute
+  '/home': typeof HomeRoute
   '/test': typeof TestRoute
   '/api/ai': typeof ApiAiRoute
   '/explore/$id': typeof ExploreIdRoute
@@ -66,6 +73,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/chat': typeof ChatRoute
   '/gallery': typeof GalleryRoute
+  '/home': typeof HomeRoute
   '/test': typeof TestRoute
   '/api/ai': typeof ApiAiRoute
   '/explore/$id': typeof ExploreIdRoute
@@ -76,6 +84,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/chat': typeof ChatRoute
   '/gallery': typeof GalleryRoute
+  '/home': typeof HomeRoute
   '/test': typeof TestRoute
   '/api/ai': typeof ApiAiRoute
   '/explore/$id': typeof ExploreIdRoute
@@ -87,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/chat'
     | '/gallery'
+    | '/home'
     | '/test'
     | '/api/ai'
     | '/explore/$id'
@@ -96,6 +106,7 @@ export interface FileRouteTypes {
     | '/'
     | '/chat'
     | '/gallery'
+    | '/home'
     | '/test'
     | '/api/ai'
     | '/explore/$id'
@@ -105,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/chat'
     | '/gallery'
+    | '/home'
     | '/test'
     | '/api/ai'
     | '/explore/$id'
@@ -115,6 +127,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ChatRoute: typeof ChatRoute
   GalleryRoute: typeof GalleryRoute
+  HomeRoute: typeof HomeRoute
   TestRoute: typeof TestRoute
   ApiAiRoute: typeof ApiAiRoute
   ExploreIdRoute: typeof ExploreIdRoute
@@ -142,6 +155,13 @@ declare module '@tanstack/react-router' {
       path: '/gallery'
       fullPath: '/gallery'
       preLoaderRoute: typeof GalleryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home': {
+      id: '/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof HomeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/test': {
@@ -179,6 +199,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ChatRoute: ChatRoute,
   GalleryRoute: GalleryRoute,
+  HomeRoute: HomeRoute,
   TestRoute: TestRoute,
   ApiAiRoute: ApiAiRoute,
   ExploreIdRoute: ExploreIdRoute,
