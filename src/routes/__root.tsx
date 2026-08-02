@@ -6,6 +6,8 @@ import {
 import appCss from '../styles.css?url'
 
 import type { QueryClient } from '@tanstack/react-query'
+import { ReactLenis, useLenis } from 'lenis/react'
+import 'lenis/dist/lenis.css'
 
 interface MyRouterContext {
   queryClient: QueryClient
@@ -36,8 +38,11 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const lenis = useLenis()
+
   return (
-    <html lang="en">
+   <ReactLenis root>
+     <html lang="en">
       <head>
         <HeadContent />
       </head>
@@ -58,5 +63,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <Scripts />
       </body>
     </html>
+   </ReactLenis>
   )
 }

@@ -1,4 +1,4 @@
-import { GalleryUI } from '#/components/gallery.tsx';
+import { Gallery } from '#/components/gallery.tsx';
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/gallery')({
@@ -7,6 +7,6 @@ export const Route = createFileRoute('/gallery')({
 
 function RouteComponent() {
   return (
-    <GalleryUI/>
+    <Gallery/>
   )
 }

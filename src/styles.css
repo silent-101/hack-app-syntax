@@ -1,14 +1,27 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Metrophobic&display=swap');
 @import "tailwindcss";
 @custom-variant dark (&:is(.dark *));
 
-.metrophobic-regular {
-  font-family: "Metrophobic", sans-serif;
-  font-weight: 400;
+@font-face {
+  font-family: "Boska";
+  src: url("./assets/Boska-Variable.ttf") format("truetype");
+  font-weight: 400 900;
   font-style: normal;
+  font-display: swap;
 }
-  
+
+@font-face {
+  font-family: "Satoshi";
+  src: url("./assets/Satoshi-Variable.ttf") format("truetype");
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --font-boska: "Boska", sans-serif;
+  --font-satoshi: "Satoshi", sans-serif;
+}
 
 * {
   box-sizing: border-box;
@@ -22,6 +35,7 @@ body,
 
 body {
   margin: 0;
+  font-family: var(--font-satoshi);
 }
 
 *::-webkit-scrollbar {

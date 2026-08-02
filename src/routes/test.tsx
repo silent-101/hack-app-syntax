@@ -1,4 +1,3 @@
-import { HomeUI } from '#/components/home'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/test')({
@@ -6,5 +5,5 @@ export const Route = createFileRoute('/test')({
 })
 
 function RouteComponent() {
-  return <HomeUI/>
+  return <div>Hello "/test"!</div>
 }

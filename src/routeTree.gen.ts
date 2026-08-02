@@ -10,12 +10,21 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ChatRouteImport } from './routes/chat'
 import { Route as GalleryRouteImport } from './routes/gallery'
 import { Route as TestRouteImport } from './routes/test'
+import { Route as ApiAiRouteImport } from './routes/api.ai'
+import { Route as ExploreIndexRouteImport } from './routes/explore/index'
+import { Route as ExploreIdRouteImport } from './routes/explore/$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatRoute = ChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GalleryRoute = GalleryRouteImport.update({
@@ -28,35 +37,88 @@ const TestRoute = TestRouteImport.update({
   path: '/test',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAiRoute = ApiAiRouteImport.update({
+  id: '/api/ai',
+  path: '/api/ai',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExploreIndexRoute = ExploreIndexRouteImport.update({
+  id: '/explore/',
+  path: '/explore/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExploreIdRoute = ExploreIdRouteImport.update({
+  id: '/explore/$id',
+  path: '/explore/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/chat': typeof ChatRoute
   '/gallery': typeof GalleryRoute
   '/test': typeof TestRoute
+  '/api/ai': typeof ApiAiRoute
+  '/explore/$id': typeof ExploreIdRoute
+  '/explore/': typeof ExploreIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/chat': typeof ChatRoute
   '/gallery': typeof GalleryRoute
   '/test': typeof TestRoute
+  '/api/ai': typeof ApiAiRoute
+  '/explore/$id': typeof ExploreIdRoute
+  '/explore': typeof ExploreIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/chat': typeof ChatRoute
   '/gallery': typeof GalleryRoute
   '/test': typeof TestRoute
+  '/api/ai': typeof ApiAiRoute
+  '/explore/$id': typeof ExploreIdRoute
+  '/explore/': typeof ExploreIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/gallery' | '/test'
+  fullPaths:
+    | '/'
+    | '/chat'
+    | '/gallery'
+    | '/test'
+    | '/api/ai'
+    | '/explore/$id'
+    | '/explore/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/gallery' | '/test'
-  id: '__root__' | '/' | '/gallery' | '/test'
+  to:
+    | '/'
+    | '/chat'
+    | '/gallery'
+    | '/test'
+    | '/api/ai'
+    | '/explore/$id'
+    | '/explore'
+  id:
+    | '__root__'
+    | '/'
+    | '/chat'
+    | '/gallery'
+    | '/test'
+    | '/api/ai'
+    | '/explore/$id'
+    | '/explore/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ChatRoute: typeof ChatRoute
   GalleryRoute: typeof GalleryRoute
   TestRoute: typeof TestRoute
+  ApiAiRoute: typeof ApiAiRoute
+  ExploreIdRoute: typeof ExploreIdRoute
+  ExploreIndexRoute: typeof ExploreIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -66,6 +128,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat': {
+      id: '/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/gallery': {
@@ -82,13 +151,38 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TestRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ai': {
+      id: '/api/ai'
+      path: '/api/ai'
+      fullPath: '/api/ai'
+      preLoaderRoute: typeof ApiAiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explore/': {
+      id: '/explore/'
+      path: '/explore'
+      fullPath: '/explore/'
+      preLoaderRoute: typeof ExploreIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explore/$id': {
+      id: '/explore/$id'
+      path: '/explore/$id'
+      fullPath: '/explore/$id'
+      preLoaderRoute: typeof ExploreIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ChatRoute: ChatRoute,
   GalleryRoute: GalleryRoute,
   TestRoute: TestRoute,
+  ApiAiRoute: ApiAiRoute,
+  ExploreIdRoute: ExploreIdRoute,
+  ExploreIndexRoute: ExploreIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
