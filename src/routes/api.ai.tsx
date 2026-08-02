@@ -1,10 +1,15 @@
 // src/routes/ai.ts
 
-import { createFileRoute } from "@tanstack/react-router";
 import { GoogleGenAI } from "@google/genai";
+import { createFileRoute } from "@tanstack/react-router";
+
+const apiKey = process.env.API_KEY;
+if (!apiKey) {
+	throw new Error("API_KEY environment variable is not set");
+}
 
 const ai = new GoogleGenAI({
-	apiKey: process.env.API_KEY!,
+	apiKey,
 });
 
 export const Route = createFileRoute("/api/ai")({
@@ -28,8 +33,13 @@ export const Route = createFileRoute("/api/ai")({
 					);
 				}
 
+				type HistoryMessage = {
+					role: "user" | "assistant";
+					content: string;
+				};
+
 				const contents = [
-					...history.map((msg: any) => ({
+					...history.map((msg: HistoryMessage) => ({
 						role: msg.role === "assistant" ? "model" : "user",
 						parts: [
 							{
@@ -59,9 +69,7 @@ export const Route = createFileRoute("/api/ai")({
 					async start(controller) {
 						try {
 							for await (const chunk of result) {
-								controller.enqueue(
-									encoder.encode(chunk.text ?? ""),
-								);
+								controller.enqueue(encoder.encode(chunk.text ?? ""));
 							}
 
 							controller.close();

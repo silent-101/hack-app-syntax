@@ -1,34 +1,29 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link } from "@tanstack/react-router";
 
-export const Route = createFileRoute('/explore/')({
-  component: RouteComponent,
-})
+export const Route = createFileRoute("/explore/")({
+	component: RouteComponent,
+});
 
 function RouteComponent() {
-	const events = [
-		"East India Company",
-		"Mughal Empire",
-		"Indian Culture",
-	];
+	const events = ["East India Company", "Mughal Empire", "Indian Culture"];
 	return (
-		<div className="min-h-screen bg-[#EDE7D8] flex items-center justify-center px-6">
+		<div className="min-h-screen flex items-center justify-center px-6">
 			<div className="w-full max-w-md">
-
-				<h1 className="
+				<h1
+					className="
 					font-serif
 					text-4xl
 					text-[#20232B]
 					mb-10
-				">
+				"
+				>
 					Explore the history
 				</h1>
-
-
 				<div className="space-y-4">
 					{events.map((event) => (
 						<Link
-              to="/explore/$id"
-             params={{id: event.toLowerCase().replace(/\s+/g, '-')}}
+							to="/explore/$id"
+							params={{ id: event.toLowerCase().replace(/\s+/g, "-") }}
 							key={event}
 							className="
 								w-full
@@ -42,28 +37,31 @@ function RouteComponent() {
 								group
 							"
 						>
-							<span className="
+							<span
+								className="
 								font-serif
 								text-2xl
 								text-[#20232B]
-							">
+							"
+							>
 								{event}
 							</span>
 
-							<span className="
+							<span
+								className="
 								font-mono
 								text-xs
 								text-[#8A4036]
 								opacity-0
 								group-hover:opacity-100
 								transition
-							">
+							"
+							>
 								→
 							</span>
 						</Link>
 					))}
 				</div>
-
 			</div>
 		</div>
 	);

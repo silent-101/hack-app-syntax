@@ -1,15 +1,14 @@
-import { INCComponents } from '#/components/inc.tsx';
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from "@tanstack/react-router";
+import { INCComponents } from "#/components/inc.tsx";
 
-export const Route = createFileRoute('/explore/$id')({
-  component: RouteComponent,
-})
-
-
+export const Route = createFileRoute("/explore/$id")({
+	component: RouteComponent,
+});
 
 function RouteComponent() {
-  // const { id } = Route.useParams();
-  return <div>
-    <INCComponents/>
-  </div>
+	return (
+		<div>
+			<INCComponents />
+		</div>
+	);
 }

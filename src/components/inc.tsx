@@ -1,9 +1,9 @@
-import { stops } from "#/lib/timeline-data.ts";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "gsap";
 import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLayoutEffect, useRef, useState } from "react";
+import { stops } from "#/lib/timeline-data.ts";
 
 gsap.registerPlugin(DrawSVGPlugin, ScrollTrigger, useGSAP);
 
@@ -11,7 +11,8 @@ const VIEWBOX_W = 491;
 const VIEWBOX_H = 1949;
 const STROKE_WIDTH = 1;
 const DASH = "13 13";
-const PATH_D = "M418 0 C395 4 362 14 332 30 C295 50 258 75 224 108 C190 140 171 178 164 220 C156 274 164 326 178 372 C194 425 238 454 295 480 C347 504 398 528 432 560 C462 590 475 640 474 710 C473 785 445 835 398 882 C354 926 295 950 238 976 C185 1000 136 1040 96 1098 C55 1158 22 1222 18 1288 C15 1355 42 1415 72 1470 C102 1525 160 1560 235 1590 C300 1616 355 1632 392 1668 C428 1704 424 1760 392 1812 C354 1872 282 1914 74 1949"
+const PATH_D =
+	"M418 0 C395 4 362 14 332 30 C295 50 258 75 224 108 C190 140 171 178 164 220 C156 274 164 326 178 372 C194 425 238 454 295 480 C347 504 398 528 432 560 C462 590 475 640 474 710 C473 785 445 835 398 882 C354 926 295 950 238 976 C185 1000 136 1040 96 1098 C55 1158 22 1222 18 1288 C15 1355 42 1415 72 1470 C102 1525 160 1560 235 1590 C300 1616 355 1632 392 1668 C428 1704 424 1760 392 1812 C354 1872 282 1914 74 1949";
 
 const CARD_WIDTH = 224;
 const CARD_GAP = 72;
@@ -38,7 +39,8 @@ export function INCComponents() {
 		const sampled: MarkerPoint[] = stops.map((_, i) => {
 			const t = i / (stops.length - 1);
 			const { x, y } = path.getPointAtLength(t * totalLength);
-			const side = i === stops.length - 1 ? "left" : i % 2 === 0 ? "right" : "left";
+			const side =
+				i === stops.length - 1 ? "left" : i % 2 === 0 ? "right" : "left";
 			return {
 				xPct: (x / VIEWBOX_W) * 100,
 				yPct: (y / VIEWBOX_H) * 100,
@@ -117,7 +119,10 @@ export function INCComponents() {
 					viewBox={`0 0 ${VIEWBOX_W} ${VIEWBOX_H}`}
 					preserveAspectRatio="none"
 					fill="none"
+					role="img"
+					aria-label="Timeline path from 1757 to 1947"
 				>
+					<title>Timeline path from 1757 to 1947</title>
 					<defs>
 						<mask
 							id="reveal-mask"
@@ -155,8 +160,10 @@ export function INCComponents() {
 					const p = points[i];
 					return (
 						<div
-							key={i}
-							ref={(el) => {markerRefs.current[i] = el}}
+							key={stop.title}
+							ref={(el) => {
+								markerRefs.current[i] = el;
+							}}
 							className="absolute w-3 h-3 rounded-full bg-[#7A2E2E] -translate-x-1/2 -translate-y-1/2 z-10"
 							style={{
 								left: p ? `${p.xPct}%` : "50%",
@@ -164,7 +171,9 @@ export function INCComponents() {
 							}}
 						>
 							<div
-								ref={(el) => {itemRefs.current[i] = el}}
+								ref={(el) => {
+									itemRefs.current[i] = el;
+								}}
 								className={`group absolute bg-[#EDE7D8] p-2 z-20 ${
 									p?.side === "right" ? "text-left" : "text-right"
 								}`}
@@ -195,7 +204,7 @@ export function INCComponents() {
 				})}
 			</div>
 
-			<section className="mx-auto mt-28 max-w-3xl px-6 pb-28 pt-20 text-center md:mt-36 md:pb-32">
+			<section className="mx-auto mt-28 max-w-3xl px-6 pt-20 text-center md:mt-36">
 				<blockquote className="text-2xl font-serif leading-relaxed text-[#20232B] md:text-3xl">
 					"At the stroke of the midnight hour, when the world sleeps, India will
 					awake to life and freedom."
@@ -205,7 +214,7 @@ export function INCComponents() {
 				</p>
 			</section>
 
-			<div aria-hidden className="h-[40vh]" />
+			<div aria-hidden className="h-[20vh]" />
 		</div>
 	);
 }
