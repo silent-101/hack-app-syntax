@@ -1,232 +1,347 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import "./chat.css";
+import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/chat")({
-	component: RouteComponent,
+  component: RouteComponent,
 });
 
+type Message = {
+  role: "user" | "assistant";
+  content: string;
+};
 
 function RouteComponent() {
-	return (
-		<div className="min-h-screen bg-[#EDE7D8] flex items-center justify-center p-6">
-			<ChatBot />
-		</div>
-	);
+  return (
+    <div className="min-h-screen bg-[#EDE7D8]">
+      <ChatBot />
+    </div>
+  );
 }
 
+function ChatBot() {
+  const [question, setQuestion] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [streamingAnswer, setStreamingAnswer] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-export function ChatBot() {
-	const [question, setQuestion] = useState("");
-	const [answer, setAnswer] = useState("");
-	const [history, setHistory] = useState<
-		{
-			role: "user" | "assistant";
-			content: string;
-		}[]
-	>([]);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
-	const [isLoading, setIsLoading] = useState(false);
-	const [error, setError] = useState("");
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
+  }, [messages, streamingAnswer]);
 
+  async function askAI(customQuestion?: string) {
+    const currentQuestion = customQuestion ?? question;
 
-	async function askAI() {
-		if (!question.trim() || isLoading) return;
+    if (!currentQuestion.trim() || loading) return;
 
-		const currentQuestion = question;
+    setQuestion("");
+    setError("");
+    setLoading(true);
+    setStreamingAnswer("");
 
-		setQuestion("");
-		setAnswer("");
-		setError("");
-		setIsLoading(true);
+    // Show the user's message immediately
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "user",
+        content: currentQuestion,
+      },
+    ]);
 
+    try {
+      const res = await fetch("/api/ai", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: currentQuestion,
+          history: messages,
+        }),
+      });
 
-		try {
-			const res = await fetch("/api/ai", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					message: currentQuestion,
-					history,
-				}),
-			});
+      if (!res.ok) {
+        throw new Error(`Request failed ${res.status}`);
+      }
 
+      if (!res.body) {
+        throw new Error("No response body");
+      }
 
-			if (!res.ok) {
-				throw new Error(
-					`Request failed ${res.status}`
-				);
-			}
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
 
+      let finalAnswer = "";
 
-			if (!res.body) {
-				throw new Error("No response body");
-			}
+      while (true) {
+        const { done, value } = await reader.read();
 
+        if (done) break;
 
-			const reader = res.body.getReader();
-			const decoder = new TextDecoder();
+        const chunk = decoder.decode(value, {
+          stream: true,
+        });
 
+        finalAnswer += chunk;
 
-			let finalAnswer = "";
+        setStreamingAnswer(finalAnswer);
+      }
 
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: finalAnswer,
+        },
+      ]);
 
-			while (true) {
-				const { done, value } = await reader.read();
+      setStreamingAnswer("");
+    } catch (err) {
+      console.error(err);
 
+      setError("Unable to connect to Museum AI.");
 
-				if (done) break;
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content:
+            "Sorry, something went wrong while generating the response.",
+        },
+      ]);
 
+      setStreamingAnswer("");
+    } finally {
+      setLoading(false);
+    }
+  }
 
-				const chunk = decoder.decode(value, {
-					stream: true,
-				});
+  const suggestions = [
+    "🏛 Tell me about the Taj Mahal",
+    "🎨 Explain Ajanta Caves",
+    "📜 Who was Ashoka?",
+    "🗺 Best museums in Delhi",
+  ];
 
+    return (
+    <div className="flex w-full flex-col">
 
-				finalAnswer += chunk;
+      <div className="mx-auto flex h-full w-full max-w-7xl overflow-hidden rounded-3xl bg-[#F8F4EB] shadow-2xl">
 
+        {/* LEFT SIDE */}
 
-				setAnswer((prev) => prev + chunk);
-			}
+        <div className="flex h-full w-full flex-col">
 
+          {/* HEADER */}
 
-			// Save conversation
-			setHistory((prev) => [
-				...prev,
-				{
-					role: "user",
-					content: currentQuestion,
-				},
-				{
-					role: "assistant",
-					content: finalAnswer,
-				},
-			]);
+          <div className="border-b border-stone-200 bg-[#F8F4EB] px-8 py-6">
 
+            <h1 className="text-4xl font-bold text-stone-800">
+              🏛 Dekho Bharat AI Guide
+            </h1>
 
-		} catch (err) {
-			console.error(err);
-			setError(
-				"Something went wrong. Please try again."
-			);
-		} finally {
-			setIsLoading(false);
-		}
-	}
-	return (
-	<div className="
-		w-full
-		max-w-lg
-	"
-	>
+            <p className="mt-2 text-stone-500">
+              Discover India's history through AI.
+            </p>
+			<div className="mt-4 flex items-center justify-end gap-6 text-sm font-medium">
+  <Link
+    to="/index"
+    className="rounded-full px-3 py-1 text-stone-600 transition-all duration-300 hover:bg-amber-100 hover:text-amber-700"
+  >
+    Home
+  </Link>
+  <Link
+    to="/"
+    className="rounded-full px-3 py-1 text-stone-600 transition-all duration-300 hover:bg-amber-100 hover:text-amber-700"
+  >
+    Museum
+  </Link>
 
-		<div className="
-			mb-10
-		">
-			<p className="
-				font-mono
-				text-xs
-				tracking-[0.35em]
-				uppercase
-				text-[#8A4036]
-				mb-3
-			">
-				Museum Guide
-			</p>
+  <Link
+    to="/gallery"
+    className="rounded-full px-3 py-1 text-stone-600 transition-all duration-300 hover:bg-amber-100 hover:text-amber-700"
+  >
+    Gallery
+  </Link>
 
-			<h2 className="
-				font-serif
-				text-4xl
-				text-[#20232B]
-				leading-tight
-			">
-				Ask about India's history
-			</h2>
-		</div>
+  <Link
+    to="/chat"
+    className="rounded-full px-3 py-1 text-stone-600 transition-all duration-300 hover:bg-amber-100 hover:text-amber-700"
+  >
+    Chat
+  </Link>
+</div>
 
+          </div>
 
-		<div className="
-			min-h-32
-			mb-8
-			text-[#20232B]
-			font-serif
-			text-xl
-			leading-relaxed
-		">
-			{
-				answer ||
-				<span className="text-[#20232B]/40">
-					Explore events, people, and moments that shaped India.
-				</span>
-			}
-		</div>
+          {/* CHAT */}
 
+          <div className="flex-1 overflow-y-auto px-8 py-8" 
+		  style={{ scrollbarWidth: "revert-layer", }} >
 
-		<div className="
-			border-b
-			border-[#20232B]/20
-			flex
-			items-center
-			gap-4
-			pb-3
-		">
+            {messages.length === 0 && (
 
-			<textarea
-				value={question}
-				onChange={(e) =>
-					setQuestion(e.target.value)
-				}
-				rows={1}
-				placeholder="Ask a question..."
-				className="
-					flex-1
-					resize-none
-					bg-transparent
-					outline-none
-					text-[#20232B]
-					placeholder:text-[#20232B]/40
-				"
-			/>
+              <>
 
+                <h2 className="mb-3 text-3xl font-bold text-stone-800">
+                  Welcome Explorer 👋
+                </h2>
 
-			<button
-				onClick={askAI}
-				disabled={
-					isLoading ||
-					!question.trim()
-				}
-				className="
-					font-mono
-					text-xs
-					uppercase
-					tracking-widest
-					text-[#8A4036]
-					disabled:opacity-30
-				"
-			>
-				{
-					isLoading
-						? "..."
-						: "Ask"
-				}
-			</button>
+                <p className="mb-8 max-w-xl text-stone-600 leading-8">
+                  Ask me anything about Indian history,
+                  architecture, paintings,
+                  museums, culture or monuments.
+                </p>
 
-		</div>
+                <div className="grid grid-cols-2 gap-4">
 
+                  {suggestions.map((item) => (
 
-		{
-			error && (
-				<p className="
-					mt-4
-					text-sm
-					text-red-600
-				">
-					{error}
-				</p>
-			)
-		}
+                    <button
+                      key={item}
+                      onClick={() => askAI(item)}
+                      className="rounded-2xl border border-stone-200 bg-white p-5 text-left transition hover:border-amber-500 hover:shadow-lg"
+                    >
+                      {item}
+                    </button>
 
-	</div>
-);
+                  ))}
+
+                </div>
+
+              </>
+
+            )}
+
+            <div className="mt-10 space-y-8 pb-10">
+
+              {messages.map((msg, index) => (
+
+                <div
+                  key={index}
+                  className={`flex ${
+                    msg.role === "user"
+                      ? "justify-end"
+                      : "justify-start"
+                  }`}
+                >
+
+                  <div
+                    className={`max-w-[75%] rounded-3xl px-6 py-5 shadow-sm
+
+                    ${
+                      msg.role === "user"
+
+                        ? "bg-amber-600 text-white"
+
+                        : "bg-white text-stone-800 border border-stone-200"
+
+                    }
+
+                    `}
+                  >
+
+                    <p className="mb-2 text-sm font-semibold">
+
+                      {msg.role === "user"
+
+                        ? "You"
+
+                        : "🏛 Dekho Bharat AI Guide"}
+
+                    </p>
+
+                    <p className="whitespace-pre-wrap leading-7">
+                      {msg.content}
+                    </p>
+
+                  </div>
+
+                </div>
+
+              ))}
+
+              {loading && (
+
+                <div className="flex justify-start">
+
+                  <div className="max-w-[75%] rounded-3xl border border-stone-200 bg-white px-6 py-5 shadow-sm">
+
+                    <p className="mb-2 text-sm font-semibold text-stone-700">
+                      🏛 Museum AI Guide
+                    </p>
+
+                    <p className="whitespace-pre-wrap leading-7">
+                      {streamingAnswer}
+                    </p>
+
+                  </div>
+
+                </div>
+
+              )}
+
+              <div ref={bottomRef} />
+
+            </div>
+
+          </div>
+
+          {/* INPUT */}
+
+          <div className="border-t border-stone-200 bg-[#F8F4EB] p-6">
+
+            <div className="flex gap-4">
+
+              <textarea
+                rows={2}
+                value={question}
+                onChange={(e) =>
+                  setQuestion(e.target.value)
+                }
+                onKeyDown={(e) => {
+
+                  if (
+                    e.key === "Enter" &&
+                    !e.shiftKey
+                  ) {
+                    e.preventDefault();
+                    askAI();
+                  }
+
+                }}
+                placeholder="Ask anything about Indian history..."
+                className="flex-1 resize-none rounded-2xl border border-stone-300 bg-white p-4 outline-none focus:border-amber-500"
+              />
+
+              <button
+                onClick={() => askAI()}
+                disabled={loading}
+                className="rounded-2xl bg-amber-600 px-8 font-semibold text-white transition hover:bg-amber-700 disabled:opacity-50"
+              >
+                {loading ? "..." : "Send"}
+              </button>
+
+            </div>
+
+            {error && (
+              <p className="mt-3 text-red-600">
+                {error}
+              </p>
+            )}
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  );
 }
